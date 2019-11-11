@@ -1,20 +1,28 @@
-### Reapex modal plugin
+### Reapex dataloader plugin
 
 ```typescript
 import { App } from 'reapex'
-import modalPlugin from 'reapex-plugin-modal'
+import dataloaderPlugin from 'reapex-plugin-dataloader'
 
 const app = new App()
 
 // 1. register the plugin
-const modal = app.plugin(modalPlugin, '@@modals')
+export const {DataLoader, mutations, effects, model} = app.plugin(dataloaderPlugin)
 
-// 2. add the modal component to your React application root
+// 2. use DataLoader component
 <Provider store={store}>
-  <modal.Component />
+  <DataLoader name="api1" apiCall={mockApi}>
+  {
+    (loader: Loader<number>) => {
+      if (loader.loading) {
+        return <div>loading...</div>
+      }
+      if (loader.error) {
+        return <div>Error!!!</div>
+      }
+      return <div>{loader.data ? loader.data : 'No Data!'}</div>
+    }
+  }
+  </DataLoader>
 </Provider>
-
-// show/hide any component
-store.dispatch(modal.mutations.show('modal1', SomeComponent, props))
-store.dispatch(modal.mutations.hide('modal1'))
 ```
