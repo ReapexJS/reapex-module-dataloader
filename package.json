@@ -1,0 +1,63 @@
+{
+  "name": "reapex-plugin-dataloader",
+  "version": "1.0.0",
+  "description": "reapex dataloader plugin",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "./node_modules/.bin/tsc --outDir lib --declaration",
+    "start": "webpack --config webpack.config.js --config-name vendor && webpack --config webpack.config.js --config-name app && node server.js",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReapexJS/reapex-plugin-dataloader.git"
+  },
+  "keywords": [
+    "reapex",
+    "dataloader"
+  ],
+  "devDependencies": {
+    "@types/enzyme": "~3.1.10",
+    "@types/jest": "~22.2.3",
+    "@types/node": "~10.0.2",
+    "@types/react-dom": "~16.8.4",
+    "@types/react-redux": "~5.0.19",
+    "ajv": "~6.9.1",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.11.2",
+    "express": "~4.16.3",
+    "glob": "~7.1.2",
+    "html-webpack-plugin": "~3.2.0",
+    "immutable": "^4.0.0-rc.12",
+    "jest": "^24.7.0",
+    "jest-enzyme": "^7.0.2",
+    "react": "~16.8.6",
+    "react-dom": "~16.8.6",
+    "react-redux": "~5.1.0",
+    "reapex": "0.10.0",
+    "redux": "^4.0.0",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-saga": "^1.1.0",
+    "reselect": "^4.0.0",
+    "ts-jest": "^24.0.1",
+    "ts-loader": "~4.2.0",
+    "tslint": "~5.9.1",
+    "typescript": "~3.2.1",
+    "webpack": "~4.6.0",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-middleware": "~3.1.2"
+  },
+  "dependencies": {
+    "@types/react": "^16.9.2"
+  },
+  "peerDependencies": {
+    "reapex": ">= 0.10.0"
+  },
+  "author": "Yulong Ruan <ruanyu1@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ReapexJS/reapex-plugin-dataloader/issues"
+  },
+  "homepage": "https://github.com/ReapexJS/reapex-plugin-dataloader#readme"
+}

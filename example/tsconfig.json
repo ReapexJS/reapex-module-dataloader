@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "jsx": "react",
+    "target": "es5",
+    "lib": ["ES2015","ES2016", "ESNEXT", "DOM", "ES5", "ScriptHost", "ES2015.Promise"]
+  },
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "**/*.spec.ts"
+  ]
+}
