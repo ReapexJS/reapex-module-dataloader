@@ -17,7 +17,7 @@ export interface OptionalProps<TData = any, TParams = any> {
   interval: number
   shouldInterval: (data?: TData) => boolean
   params: TParams
-  dataPersister: DataPersister
+  dataPersister: DataPersister | undefined
   lazyLoad: boolean
   dataKey: (name: string, params?: TParams) => string
 }
@@ -36,9 +36,8 @@ export interface Loader<TData = any> extends LoaderStatus<TData> {
   load: () => any;
 }
 
-export interface DataLoaderProps<TData = any, TParams = any> extends MandatoryProps<TParams>, Partial<OptionalProps<TData, TParams>> {
-  children: (loader: Loader<TData>) => React.ReactNode;
-}
+
+export type DataLoaderProps<TData = any, TParams = any> = MandatoryProps<TParams> & Partial<OptionalProps<TData, TParams>>
 
 export interface StateProps<TData = any> {
   loaderStatus?: LoaderStatus<TData>;

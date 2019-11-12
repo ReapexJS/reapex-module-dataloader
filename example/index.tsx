@@ -1,4 +1,4 @@
-import app, { DataLoader } from './app'
+import app, { DataLoader, useDataLoader } from './app'
 
 import {Loader} from '../src/dataloader.types';
 import { Provider } from 'react-redux';
@@ -11,11 +11,27 @@ const mockApi = () => {
   })
 }
 
+const LoaderWithHook: React.FC = () => {
+  const [loaderStatus] = useDataLoader<number>({
+    name: 'api2',
+    apiCall: mockApi,
+    interval: 3000,
+  })
+
+  if (loaderStatus.loading) {
+    return <div>loading...</div>
+  }
+  if (loaderStatus.error) {
+    return <div>Error!!!</div>
+  }
+  return <div>{loaderStatus.data ? loaderStatus.data : 'No Data!'}</div>
+}
+
 const store = app.createStore()
 render(
   <Provider store={store}>
     <>
-      <DataLoader name="api1" apiCall={mockApi}>
+      <DataLoader name="api1" apiCall={mockApi} interval={3000}>
       {
         (loader: Loader<number>) => {
           if (loader.loading) {
@@ -28,6 +44,8 @@ render(
         }
       }
       </DataLoader>
+      <p>DataLoader hook example</p>
+      <LoaderWithHook />
     </>
   </Provider>,
   document.getElementById('root')

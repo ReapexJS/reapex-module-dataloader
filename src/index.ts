@@ -1,3 +1,3 @@
-import modalPlugin from './modal.plugin'
+import dataLoaderPlugin from './dataloader.plugin'
 
-export default modalPlugin
+export default dataLoaderPlugin

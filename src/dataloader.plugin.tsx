@@ -1,15 +1,14 @@
 import { App, GlobalState } from 'reapex'
+import {DataLoaderComponent, defaultProps} from './DataLoader';
 import {DataLoaderProps, DispatchProps, LoaderStatus, Meta, StateProps} from './dataloader.types';
 import {SagaIterator, Task} from 'redux-saga';
 import {call, cancel, delay, fork, put, select} from 'redux-saga/effects';
 import {defaultDataKeyFunc, isDataValid} from './utils';
+import {useEffect, useState} from 'react';
 
-import {DataLoaderComponent} from './DataLoader';
 import {connect} from 'react-redux';
 
 type IntervalFunction = (meta: Meta) => any
-
-// import { connect } from 'react-redux'
 
 export interface DataLoaderState {
   [key: string]: LoaderStatus
@@ -107,7 +106,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
 
   function* runInInterval(func: IntervalFunction, meta: Meta): SagaIterator {
     const task: Task = yield fork(func, meta)
-    yield call(delay, meta.interval)
+    yield delay(meta.interval)
 
     // cancel task if task is still running after interval
     if (task.isRunning()) {
@@ -172,11 +171,12 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
   const mapStateToProps = (state: GlobalState, ownProps: DataLoaderProps) => {
     const data = dataloader.selectors.data(state)
     const name = ownProps.name
+    // TODO: refactor dataKey to use a string
     const key = ownProps.dataKey ? ownProps.dataKey(name, ownProps.params) : defaultDataKeyFunc(name, ownProps.params)
-    const id = `${name}/${key}`
+    const dataKey = `${name}/${key}`
 
     return {
-      loaderStatus: data[id]
+      loaderStatus: data[dataKey],
     }
   }
 
@@ -191,11 +191,39 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
 
   const DataLoader = connect(mapStateToProps, { load: effects.load, init: mutations.init }, mergeProps)(DataLoaderComponent)
 
+  function useDataLoader<TData = any>(ownProps: DataLoaderProps) {
+    const [loaderStatus, setLoaderStatus] = useState<LoaderStatus<TData>>({data: null, loading: false, error: null})
+    const meta: Meta = { ...defaultProps, ...ownProps }
+    useEffect(() => {
+      function subscribeToStore() {
+        const state = app.store.getState()
+        const {loaderStatus: currentLoaderStatus} = mapStateToProps(state, ownProps)
+        if (loaderStatus !== currentLoaderStatus) {
+          setLoaderStatus(currentLoaderStatus)
+        }
+      }
+
+      const unsubscribe = app.store.subscribe(subscribeToStore)
+      if (ownProps.autoLoad) {
+        app.store.dispatch(mutations.init(meta))
+      } else {
+        app.store.dispatch(effects.load(meta))
+      }
+
+      return unsubscribe
+    }, [])
+
+    const load = () => app.store.dispatch(effects.load(meta))
+
+    return [loaderStatus, load] as [LoaderStatus, typeof load]
+  }
+
   return {
     DataLoader,
     mutations,
     effects,
     model: dataloader,
+    useDataLoader,
   }
 }
 
