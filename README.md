@@ -7,10 +7,9 @@ import dataloaderPlugin from 'reapex-plugin-dataloader'
 const app = new App()
 
 // 1. register the plugin
-export const {DataLoader, mutations, effects, model} = app.plugin(dataloaderPlugin)
+export const {DataLoader, mutations, effects, model} = app.use(dataloaderPlugin)
 
 // 2. use DataLoader component
-<Provider store={store}>
   <DataLoader name="api1" apiCall={mockApi}>
   {
     (loader: Loader<number>) => {
@@ -24,5 +23,4 @@ export const {DataLoader, mutations, effects, model} = app.plugin(dataloaderPlug
     }
   }
   </DataLoader>
-</Provider>
 ```
