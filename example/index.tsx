@@ -1,9 +1,9 @@
-import app, { DataLoader, useDataLoader } from './app'
-
-import {Loader} from '../src/dataloader.types';
-import { Provider } from 'react-redux';
 import React from 'react'
-import { render } from 'react-dom';
+import { render } from 'react-dom'
+import { Provider } from 'react-redux'
+
+import app, { DataLoader, useDataLoader } from './app'
+import { Loader } from '../src/dataloader.types'
 
 interface GithubItem {
   full_name: string
@@ -15,7 +15,7 @@ interface GithubSearchResult {
 }
 
 const mockApi = () => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => resolve(Math.random()), 1000)
   })
 }
@@ -26,7 +26,6 @@ const searchGithubRepo = async (query: string) => {
   )
   return res.json()
 }
-
 
 const LoaderWithHook: React.FC = () => {
   const [loaderStatus] = useDataLoader<number>({
@@ -48,25 +47,37 @@ const store = app.createStore()
 render(
   <Provider store={store}>
     <>
+      <p>
+        <b>DataLoader basic example</b>
+      </p>
       <DataLoader name="api1" apiCall={searchGithubRepo} params="react">
-      {
-        (loader: Loader<GithubSearchResult>) => {
+        {(loader: Loader<GithubSearchResult>) => {
           if (loader.loading) {
             return <div>loading...</div>
           }
           if (loader.error) {
+            console.log(loader.error)
             return <div>Error!!!</div>
           }
           if (!loader.data) {
             return 'no data'
           }
-          return <div>{loader.data.items.slice(0, 10).map(item => {
-            return <p>{item.full_name}</p>
-          })}</div>
-        }
-      }
+          return (
+            <div>
+              {loader.data.items.slice(0, 10).map(item => {
+                return <p>{item.full_name}</p>
+              })}
+              <div>
+                <button onClick={() => loader.load()}>reload</button>
+              </div>
+            </div>
+          )
+        }}
       </DataLoader>
-      <p>DataLoader hook example</p>
+      <hr />
+      <p>
+        <b>DataLoader hook example</b>
+      </p>
       <LoaderWithHook />
     </>
   </Provider>,

@@ -1,6 +1,11 @@
-import {DataLoaderComponentProps, DispatchProps, OptionalProps, StateProps} from './dataloader.types';
-
 import React from 'react'
+
+import {
+  DataLoaderComponentProps,
+  DispatchProps,
+  OptionalProps,
+  StateProps,
+} from './dataloader.types'
 
 export const defaultProps: OptionalProps = {
   cacheExpiresIn: 0,
@@ -15,11 +20,19 @@ export const defaultProps: OptionalProps = {
   dataKey: () => 'default',
 }
 
-export class DataLoaderComponent<TData = any, TParams = any> extends React.PureComponent<DataLoaderComponentProps<TData, TParams> & StateProps<TData> & DispatchProps<TData, TParams>, {}> {
+export class DataLoaderComponent<
+  TData = any,
+  TParams = any
+> extends React.PureComponent<
+  DataLoaderComponentProps<TData, TParams> &
+    StateProps<TData> &
+    DispatchProps<TData, TParams>,
+  {}
+> {
   static defaultProps = defaultProps
 
   componentWillMount() {
-    const { load, init, loaderStatus, children, ...meta } = this.props;
+    const { load, init, loaderStatus, children, ...meta } = this.props
     if (meta.autoLoad) {
       load(meta)
     } else {
@@ -30,7 +43,11 @@ export class DataLoaderComponent<TData = any, TParams = any> extends React.PureC
   render() {
     const { load, init, loaderStatus, children, ...meta } = this.props
     if (loaderStatus) {
-      return children({ ...loaderStatus, load: (params: TParams) => load({ ...meta, params }) })
+      return children({
+        ...loaderStatus,
+        load: (params?: TParams) =>
+          params ? load({ ...meta, params }) : load({ ...meta }),
+      })
     }
     return null
   }

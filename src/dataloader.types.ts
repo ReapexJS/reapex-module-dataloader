@@ -5,7 +5,7 @@ export interface DataPersister {
 }
 
 export interface MandatoryProps<TParams = any> {
-  name: string;
+  name: string
   apiCall: (params?: TParams) => Promise<any>
 }
 
@@ -22,7 +22,9 @@ export interface OptionalProps<TData = any, TParams = any> {
   dataKey: (name: string, params?: TParams) => string
 }
 
-export interface Meta<TData = any, TParams = any> extends MandatoryProps<TParams>, OptionalProps<TData, TParams> {}
+export interface Meta<TData = any, TParams = any>
+  extends MandatoryProps<TParams>,
+    OptionalProps<TData, TParams> {}
 
 export interface LoaderStatus<TData = any> {
   data: TData | null
@@ -32,22 +34,27 @@ export interface LoaderStatus<TData = any> {
   lastErrorTime?: number
 }
 
-export interface Loader<TData = any, TParams = any> extends LoaderStatus<TData> {
-  load: (params: TParams) => any;
+export interface Loader<TData = any, TParams = any>
+  extends LoaderStatus<TData> {
+  load: (params?: TParams) => any
 }
 
-
-export type DataLoaderProps<TData = any, TParams = any> = MandatoryProps<TParams> & Partial<OptionalProps<TData, TParams>>
+export type DataLoaderProps<TData = any, TParams = any> = MandatoryProps<
+  TParams
+> &
+  Partial<OptionalProps<TData, TParams>>
 
 export interface StateProps<TData = any> {
-  loaderStatus?: LoaderStatus<TData>;
+  loaderStatus?: LoaderStatus<TData>
 }
 
 export interface DispatchProps<TData = any, TParams = any> {
-  load: (meta: Meta<TData, TParams>) => any;
-  init: (meta: Meta<TData, TParams>) => any;
+  load: (meta: Meta<TData, TParams>) => any
+  init: (meta: Meta<TData, TParams>) => any
 }
 
-export interface DataLoaderComponentProps<TData = any, TParams = any> extends MandatoryProps<TParams>, OptionalProps<TData, TParams> {
-  children: (loader: Loader<TData, TParams>) => React.ReactNode;
+export interface DataLoaderComponentProps<TData = any, TParams = any>
+  extends MandatoryProps<TParams>,
+    OptionalProps<TData, TParams> {
+  children: (loader: Loader<TData, TParams>) => React.ReactNode
 }
