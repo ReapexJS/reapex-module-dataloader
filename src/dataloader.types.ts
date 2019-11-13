@@ -32,8 +32,8 @@ export interface LoaderStatus<TData = any> {
   lastErrorTime?: number
 }
 
-export interface Loader<TData = any> extends LoaderStatus<TData> {
-  load: () => any;
+export interface Loader<TData = any, TParams = any> extends LoaderStatus<TData> {
+  load: (params: TParams) => any;
 }
 
 
@@ -49,5 +49,5 @@ export interface DispatchProps<TData = any, TParams = any> {
 }
 
 export interface DataLoaderComponentProps<TData = any, TParams = any> extends MandatoryProps<TParams>, OptionalProps<TData, TParams> {
-  children: (loader: Loader<TData>) => React.ReactNode;
+  children: (loader: Loader<TData, TParams>) => React.ReactNode;
 }

@@ -30,8 +30,7 @@ export class DataLoaderComponent<TData = any, TParams = any> extends React.PureC
   render() {
     const { load, init, loaderStatus, children, ...meta } = this.props
     if (loaderStatus) {
-      // TODO: pass params to load()
-      return children({ ...loaderStatus, load: () => load(meta) })
+      return children({ ...loaderStatus, load: (params: TParams) => load({ ...meta, params }) })
     }
     return null
   }

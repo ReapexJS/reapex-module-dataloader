@@ -191,7 +191,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
 
   const DataLoader = connect(mapStateToProps, { load: effects.load, init: mutations.init }, mergeProps)(DataLoaderComponent)
 
-  function useDataLoader<TData = any>(ownProps: DataLoaderProps) {
+  function useDataLoader<TData = any, TParams = any>(ownProps: DataLoaderProps) {
     const [loaderStatus, setLoaderStatus] = useState<LoaderStatus<TData>>({data: null, loading: false, error: null})
     const meta: Meta = { ...defaultProps, ...ownProps }
     useEffect(() => {
@@ -213,7 +213,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
       return unsubscribe
     }, [])
 
-    const load = () => app.store.dispatch(effects.load(meta))
+    const load = (params: TParams) => app.store.dispatch(effects.load({ ...meta, params }))
 
     return [loaderStatus, load] as [LoaderStatus, typeof load]
   }
