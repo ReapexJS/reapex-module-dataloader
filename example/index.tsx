@@ -3,7 +3,6 @@ import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 
 import app, { DataLoader, useDataLoader } from './app'
-import { Loader } from '../src/dataloader.types'
 
 interface GithubItem {
   full_name: string
@@ -50,8 +49,12 @@ render(
       <p>
         <b>DataLoader basic example</b>
       </p>
-      <DataLoader name="api1" apiCall={searchGithubRepo} params="react">
-        {(loader: Loader<GithubSearchResult>) => {
+      <DataLoader<GithubSearchResult, string>
+        name="api1"
+        apiCall={searchGithubRepo}
+        params="react"
+      >
+        {loader => {
           if (loader.loading) {
             return <div>loading...</div>
           }
@@ -60,7 +63,7 @@ render(
             return <div>Error!!!</div>
           }
           if (!loader.data) {
-            return 'no data'
+            return <div>no data</div>
           }
           return (
             <div>

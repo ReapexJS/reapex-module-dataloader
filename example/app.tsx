@@ -3,6 +3,8 @@ import dataloaderPlugin from '../src'
 
 const app = new App()
 
-export const {DataLoader, mutations, effects, model, useDataLoader} = app.plugin(dataloaderPlugin)
+export const { DataLoader, mutations, load, model, useDataLoader } = app.plugin(
+  dataloaderPlugin
+)
 
 export default app

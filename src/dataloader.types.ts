@@ -53,8 +53,23 @@ export interface DispatchProps<TData = any, TParams = any> {
   init: (meta: Meta<TData, TParams>) => any
 }
 
-export interface DataLoaderComponentProps<TData = any, TParams = any>
-  extends MandatoryProps<TParams>,
-    OptionalProps<TData, TParams> {
-  children: (loader: Loader<TData, TParams>) => React.ReactNode
+export type DataLoaderComponentProps<
+  TData = any,
+  TParams = any
+> = MandatoryProps<TParams> &
+  OptionalProps<TData, TParams> &
+  DataLoaderChildren<TData, TParams>
+
+export interface DataLoaderChildren<TData = any, TParams = any> {
+  children: (loader: Loader<TData, TParams>) => JSX.Element | null
+}
+
+export type IntervalFunction = (meta: Meta) => any
+
+export interface LoaderData {
+  [key: string]: LoaderStatus
+}
+
+export interface DataLoaderState {
+  data: LoaderData
 }

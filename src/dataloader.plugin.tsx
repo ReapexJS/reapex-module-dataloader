@@ -1,80 +1,46 @@
 import { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
 import { App, GlobalState } from 'reapex'
 import { SagaIterator, Task } from 'redux-saga'
 import { call, cancel, delay, fork, put, select } from 'redux-saga/effects'
 
-import { DataLoaderComponent, defaultProps } from './DataLoader'
 import {
   DataLoaderProps,
-  DispatchProps,
   LoaderStatus,
   Meta,
-  StateProps,
+  LoaderData,
+  IntervalFunction,
+  DataLoaderState,
+  DataLoaderChildren,
+  OptionalProps,
 } from './dataloader.types'
 import { defaultDataKeyFunc, isDataValid } from './utils'
+import { init, start, loadSuccess, loadFailure } from './DataLoader.mutations'
 
-type IntervalFunction = (meta: Meta) => any
-
-export interface DataLoaderState {
-  [key: string]: LoaderStatus
+const initialState: DataLoaderState = {
+  data: {},
 }
 
-const initialState = {
-  data: {} as DataLoaderState,
+const defaultProps: OptionalProps = {
+  cacheExpiresIn: 0,
+  autoLoad: true,
+  onSuccess: () => true,
+  onFailure: () => true,
+  interval: 0,
+  shouldInterval: () => true,
+  params: undefined,
+  dataPersister: undefined,
+  lazyLoad: false,
+  dataKey: () => 'default',
 }
 
 const plugin = (app: App, namespace: string = '@@dataloader') => {
   const dataloader = app.model(namespace, initialState)
 
   const [mutations] = dataloader.mutations({
-    init: (meta: Meta) => s => {
-      const name = meta.name
-      const key = meta.dataKey(name, meta.params)
-      const updated = update(name, key, s.data, {
-        data: null,
-        loading: false,
-        error: null,
-      })
-      return s.set('data', updated)
-    },
-    start: (meta: Meta) => s => {
-      const name = meta.name
-      const key = meta.dataKey(name, meta.params)
-      const updated = update(name, key, s.data, { loading: true })
-      return s.set('data', updated)
-    },
-    loadSuccess: (meta: Meta, data: any, isFresh: boolean) => s => {
-      const name = meta.name
-      const key = meta.dataKey(name, meta.params)
-
-      let status: Partial<LoaderStatus> = {
-        data,
-        error: null,
-        lastUpdateTime: Date.now(),
-      }
-
-      if (isFresh) {
-        status = {
-          ...status,
-          loading: false,
-        }
-      }
-
-      const updated = update(name, key, s.data, status)
-      return s.set('data', updated)
-    },
-    loadFailure: (meta: Meta, error: Error) => s => {
-      const name = meta.name
-      const key = meta.dataKey(name, meta.params)
-
-      const updated = update(name, key, s.data, {
-        error,
-        loading: false,
-        lastErrorTime: Date.now(),
-      })
-      return s.set('data', updated)
-    },
+    init,
+    start,
+    loadSuccess,
+    loadFailure,
   })
 
   const [effects] = dataloader.effects(
@@ -91,32 +57,6 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
       },
     }
   )
-
-  function update(
-    name: string,
-    key: string,
-    state: DataLoaderState,
-    data: Partial<LoaderStatus>
-  ): DataLoaderState {
-    const id = `${name}/${key}`
-    let dataStorage = state[id]
-    // initialize with default values if data NOT exist
-    if (!dataStorage) {
-      dataStorage = {
-        data: null,
-        loading: false,
-        error: null,
-      }
-    }
-
-    // update the state with data
-    dataStorage = {
-      ...dataStorage,
-      ...data,
-    }
-
-    return { ...state, [id]: dataStorage }
-  }
 
   function* runInInterval(func: IntervalFunction, meta: Meta): SagaIterator {
     const task: Task = yield fork(func, meta)
@@ -136,7 +76,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     const name = meta.name
     const key = meta.dataKey(meta.name, meta.params)
 
-    let data: DataLoaderState = yield select(dataloader.selectors.data)
+    let data: LoaderData = yield select(dataloader.selectors.data)
     const id = `${name}/${key}`
 
     const status = data[id]
@@ -181,7 +121,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     }
   }
 
-  const mapStateToProps = (state: GlobalState, ownProps: DataLoaderProps) => {
+  const getLoaderStatus = (state: GlobalState, ownProps: DataLoaderProps) => {
     const data = dataloader.selectors.data(state)
     const name = ownProps.name
     // TODO: refactor dataKey to use a string
@@ -195,25 +135,6 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     }
   }
 
-  const mergeProps = (
-    stateProps: StateProps,
-    dispatchProps: DispatchProps,
-    ownProps: DataLoaderProps
-  ) => {
-    return {
-      ...stateProps,
-      ...dispatchProps,
-      ...ownProps,
-      dataKey: ownProps.dataKey || defaultDataKeyFunc,
-    }
-  }
-
-  const DataLoader = connect(
-    mapStateToProps,
-    { load: effects.load, init: mutations.init },
-    mergeProps
-  )(DataLoaderComponent)
-
   function useDataLoader<TData = any, TParams = any>(
     ownProps: DataLoaderProps
   ) {
@@ -226,7 +147,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     useEffect(() => {
       function subscribeToStore() {
         const state = app.store.getState()
-        const { loaderStatus: currentLoaderStatus } = mapStateToProps(
+        const { loaderStatus: currentLoaderStatus } = getLoaderStatus(
           state,
           ownProps
         )
@@ -253,10 +174,19 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     return [loaderStatus, load] as [LoaderStatus, typeof load]
   }
 
+  function DataLoader<TData = any, TParams = any>(
+    ownProps: DataLoaderProps<TData, TParams> &
+      DataLoaderChildren<TData, TParams>
+  ) {
+    const { children, ...props } = ownProps
+    const [loaderStatus, load] = useDataLoader(props)
+    return children && children({ ...loaderStatus, load })
+  }
+
   return {
     DataLoader,
     mutations,
-    effects,
+    load: effects.load,
     model: dataloader,
     useDataLoader,
   }
