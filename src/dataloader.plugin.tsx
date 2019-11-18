@@ -3,25 +3,25 @@ import { App, GlobalState } from 'reapex'
 import { SagaIterator, Task } from 'redux-saga'
 import { call, cancel, delay, fork, put, select } from 'redux-saga/effects'
 
+import { init, loadFailure, loadSuccess, start } from './DataLoader.mutations'
 import {
+  DataLoaderChildren,
   DataLoaderProps,
+  DataLoaderState,
+  IntervalFunction,
+  LoaderData,
   LoaderStatus,
   Meta,
-  LoaderData,
-  IntervalFunction,
-  DataLoaderState,
-  DataLoaderChildren,
   OptionalProps,
 } from './dataloader.types'
 import { defaultDataKeyFunc, isDataValid } from './utils'
-import { init, start, loadSuccess, loadFailure } from './DataLoader.mutations'
 
 const initialState: DataLoaderState = {
   data: {},
 }
 
 const defaultProps: OptionalProps = {
-  cacheExpiresIn: 0,
+  ttl: 0,
   autoLoad: true,
   onSuccess: () => true,
   onFailure: () => true,
@@ -88,7 +88,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
 
     try {
       if (meta.dataPersister) {
-        data = meta.dataPersister.getItem(key, meta)
+        data = yield call(meta.dataPersister.getItem, key, meta)
       }
 
       // when it's lazy load(data retrieved from cache, for example, localstorage)

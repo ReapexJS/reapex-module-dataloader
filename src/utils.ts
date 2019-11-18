@@ -1,8 +1,8 @@
-import {LoaderStatus, Meta} from './dataloader.types';
+import { LoaderStatus, Meta } from './dataloader.types'
 
 export const isDataValid = (data: LoaderStatus, meta: Meta): boolean => {
-  const cacheExpiresIn = meta.cacheExpiresIn ? meta.cacheExpiresIn : 0
-  if (data && (Date.now() - data.lastUpdateTime!) < cacheExpiresIn) {
+  const ttl = meta.ttl ? meta.ttl : 0
+  if (data && Date.now() - data.lastUpdateTime! < ttl) {
     return true
   }
   return false
