@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 
-import app, { DataLoader, useDataLoader } from './app'
+import app, { useDataLoader } from './app'
 
 interface GithubItem {
   full_name: string
@@ -42,6 +42,38 @@ const LoaderWithHook: React.FC = () => {
   return <div>{loaderStatus.data ? loaderStatus.data : 'No Data!'}</div>
 }
 
+const LoaderWithManualCall: React.FC = () => {
+  const [loaderStatus, load] = useDataLoader<GithubSearchResult, string>({
+    name: 'api1',
+    apiCall: searchGithubRepo,
+    params: 'react',
+  })
+
+  if (loaderStatus.loading) {
+    return <div>loading...</div>
+  }
+  if (loaderStatus.error) {
+    return <div>Error!!!</div>
+  }
+  if (loaderStatus.data) {
+    return (
+      <div>
+        {loaderStatus.data?.items.slice(0, 10).map(item => {
+          return <p>{item.full_name}</p>
+        })}
+        <div>
+          <button onClick={() => load()}>reload</button>
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div>
+      <button onClick={() => load()}>reload</button>
+    </div>
+  )
+}
+
 const store = app.createStore()
 render(
   <Provider store={store}>
@@ -49,34 +81,7 @@ render(
       <p>
         <b>DataLoader basic example</b>
       </p>
-      <DataLoader<GithubSearchResult, string>
-        name="api1"
-        apiCall={searchGithubRepo}
-        params="react"
-      >
-        {loader => {
-          if (loader.loading) {
-            return <div>loading...</div>
-          }
-          if (loader.error) {
-            console.log(loader.error)
-            return <div>Error!!!</div>
-          }
-          if (!loader.data) {
-            return <div>no data</div>
-          }
-          return (
-            <div>
-              {loader.data.items.slice(0, 10).map(item => {
-                return <p>{item.full_name}</p>
-              })}
-              <div>
-                <button onClick={() => loader.load()}>reload</button>
-              </div>
-            </div>
-          )
-        }}
-      </DataLoader>
+      <LoaderWithManualCall />
       <hr />
       <p>
         <b>DataLoader hook example</b>

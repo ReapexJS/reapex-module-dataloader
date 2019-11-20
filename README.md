@@ -11,26 +11,7 @@ const app = new App()
 export const {DataLoader, mutations, effects, model} = app.use(dataloaderPlugin)
 ```
 
-## Option 1: Use DataLoader component
-```typescript
-
-// 2. use DataLoader component
-  <DataLoader name="api1" apiCall={mockApi}>
-  {
-    (loader: Loader<number>) => {
-      if (loader.loading) {
-        return <div>loading...</div>
-      }
-      if (loader.error) {
-        return <div>Error!!!</div>
-      }
-      return <div>{loader.data ? loader.data : 'No Data!'}</div>
-    }
-  }
-  </DataLoader>
-```
-
-## Option 2: Use react hooks
+## Use react hooks
 ```typescript
 const LoaderWithHook: React.FC = () => {
   const [loaderStatus] = useDataLoader<number>({
@@ -49,7 +30,7 @@ const LoaderWithHook: React.FC = () => {
 ```
 
 ## API
-`DataLoaderProps`: The `props` of `DataLoader` component and `useDataloader` hook function
+`DataLoaderProps`: The parameter of `useDataloader` hook function
 
 | Property | Description | Type | Default | Required |
 | --- | --- | --- | --- | --- |
@@ -68,7 +49,7 @@ const LoaderWithHook: React.FC = () => {
 
 ## `useDataLoader()` hook
 ```ts
-useDataLoader: <TData = any, TParams = any>(props: DataLoaderProps) => [LoaderStatus, LoadActionCreator]
+useDataLoader: <TData = any, TParams = any>(props: DataLoaderProps) => [LoaderStatus<TData>, LoadActionCreator]
 ```
 
 ## `DataLoader` child function

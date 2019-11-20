@@ -47,7 +47,7 @@
     "ts-jest": "^24.0.1",
     "ts-loader": "~4.2.0",
     "tslint": "~5.9.1",
-    "typescript": "~3.2.1",
+    "typescript": "3.7",
     "webpack": "~4.6.0",
     "webpack-cli": "^3.3.0",
     "webpack-dev-middleware": "~3.1.2"
@@ -56,7 +56,8 @@
     "@types/react": "^16.9.2"
   },
   "peerDependencies": {
-    "reapex": ">= 0.10.0"
+    "reapex": ">= 0.10.0",
+    "react": ">= 16.8.0"
   },
   "prettier": {
     "trailingComma": "es5",

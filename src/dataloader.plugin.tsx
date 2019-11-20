@@ -5,7 +5,6 @@ import { call, cancel, delay, fork, put, select } from 'redux-saga/effects'
 
 import { init, loadFailure, loadSuccess, start } from './DataLoader.mutations'
 import {
-  DataLoaderChildren,
   DataLoaderProps,
   DataLoaderState,
   IntervalFunction,
@@ -171,20 +170,10 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
         ? app.store.dispatch(effects.load({ ...meta, params }))
         : app.store.dispatch(effects.load({ ...meta }))
 
-    return [loaderStatus, load] as [LoaderStatus, typeof load]
-  }
-
-  function DataLoader<TData = any, TParams = any>(
-    ownProps: DataLoaderProps<TData, TParams> &
-      DataLoaderChildren<TData, TParams>
-  ) {
-    const { children, ...props } = ownProps
-    const [loaderStatus, load] = useDataLoader(props)
-    return children && children({ ...loaderStatus, load })
+    return [loaderStatus, load] as [LoaderStatus<TData>, typeof load]
   }
 
   return {
-    DataLoader,
     mutations,
     load: effects.load,
     model: dataloader,
