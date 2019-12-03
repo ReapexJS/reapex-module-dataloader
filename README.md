@@ -8,7 +8,7 @@ import dataloaderPlugin from 'reapex-plugin-dataloader'
 
 const app = new App()
 // 1. register the plugin
-export const {DataLoader, mutations, effects, model} = app.use(dataloaderPlugin)
+export const { useDataLoader } = app.use(dataloaderPlugin)
 ```
 
 ## Use react hooks
