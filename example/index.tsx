@@ -62,14 +62,14 @@ const LoaderWithManualCall: React.FC = () => {
           return <p>{item.full_name}</p>
         })}
         <div>
-          <button onClick={() => load()}>reload</button>
+          <button onClick={() => load('react')}>reload</button>
         </div>
       </div>
     )
   }
   return (
     <div>
-      <button onClick={() => load()}>reload</button>
+      <button onClick={() => load('react')}>reload</button>
     </div>
   )
 }
