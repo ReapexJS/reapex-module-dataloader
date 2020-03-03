@@ -8,4 +8,16 @@ export const isDataValid = (data: LoaderStatus, meta: Meta): boolean => {
   return false
 }
 
-export const defaultDataKeyFunc = (_: string, __?: any) => `default`
+export const defaultDataKeyFunc = (name: string, params?: any) =>
+  `${name}/${params ? queryString(params) : 'default'}`
+
+export const queryString = (params: any) => {
+  if (Object.prototype.toString.call(params) === '[object Object]') {
+    return Object.keys(params)
+      .map(key => {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+      })
+      .join('&')
+  }
+  return encodeURIComponent(params)
+}

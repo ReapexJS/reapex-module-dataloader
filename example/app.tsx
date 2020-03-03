@@ -1,8 +1,13 @@
 import { App } from 'reapex'
+import { createLogger } from 'redux-logger'
 
 import dataloaderPlugin from '../src'
 
-const app = new App()
+const logger = createLogger({
+  stateTransformer: (state: any) => state.toJS(),
+})
+
+const app = new App({ middlewares: [logger] })
 
 export const { mutations, load, model, useDataLoader } = app.plugin(
   dataloaderPlugin

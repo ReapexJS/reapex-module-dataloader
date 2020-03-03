@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { App, GlobalState } from 'reapex'
+import { useCallback, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { App } from 'reapex'
 import { SagaIterator, Task } from 'redux-saga'
 import { call, cancel, delay, fork, put, select } from 'redux-saga/effects'
 
@@ -29,7 +30,7 @@ const defaultProps: OptionalProps = {
   params: undefined,
   dataPersister: undefined,
   lazyLoad: false,
-  dataKey: () => 'default',
+  dataKey: defaultDataKeyFunc,
 }
 
 const plugin = (app: App, namespace: string = '@@dataloader') => {
@@ -72,13 +73,11 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
   }
 
   function* fetchData(meta: Meta) {
-    const name = meta.name
     const key = meta.dataKey(meta.name, meta.params)
 
     let data: LoaderData = yield select(dataloader.selectors.data)
-    const id = `${name}/${key}`
 
-    const status = data[id]
+    const status = data[key]
     if (data && isDataValid(status, meta)) {
       return data
     }
@@ -120,55 +119,33 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     }
   }
 
-  const getLoaderStatus = (state: GlobalState, ownProps: DataLoaderProps) => {
-    const data = dataloader.selectors.data(state)
-    const name = ownProps.name
-    // TODO: refactor dataKey to use a string
-    const key = ownProps.dataKey
-      ? ownProps.dataKey(name, ownProps.params)
-      : defaultDataKeyFunc(name, ownProps.params)
-    const dataKey = `${name}/${key}`
-
-    return {
-      loaderStatus: data[dataKey],
-    }
-  }
-
   function useDataLoader<TData = any, TParams = any>(
     ownProps: DataLoaderProps
   ) {
-    const [loaderStatus, setLoaderStatus] = useState<LoaderStatus<TData>>({
+    const meta: Meta = { ...defaultProps, ...ownProps }
+    const dispatch = useDispatch()
+    const data = useSelector(dataloader.selectors.data)
+    const load = useCallback(
+      (params?: TParams) => dispatch(effects.load({ ...meta, params })),
+      []
+    )
+
+    const key = ownProps.dataKey
+      ? ownProps.dataKey(ownProps.name, ownProps.params)
+      : defaultDataKeyFunc(ownProps.name, ownProps.params)
+    const loaderStatus = data[key] || {
       data: null,
       loading: false,
       error: null,
-    })
-    const meta: Meta = { ...defaultProps, ...ownProps }
+    }
+
     useEffect(() => {
-      function subscribeToStore() {
-        const state = app.store.getState()
-        const { loaderStatus: currentLoaderStatus } = getLoaderStatus(
-          state,
-          ownProps
-        )
-        if (loaderStatus !== currentLoaderStatus) {
-          setLoaderStatus(currentLoaderStatus)
-        }
-      }
-
-      const unsubscribe = app.store.subscribe(subscribeToStore)
       if (ownProps.autoLoad) {
-        app.store.dispatch(mutations.init(meta))
+        dispatch(mutations.init(meta))
       } else {
-        app.store.dispatch(effects.load(meta))
+        dispatch(effects.load(meta))
       }
-
-      return unsubscribe
     }, [])
-
-    const load = (params?: TParams) =>
-      params
-        ? app.store.dispatch(effects.load({ ...meta, params }))
-        : app.store.dispatch(effects.load({ ...meta }))
 
     return [loaderStatus, load] as [LoaderStatus<TData>, typeof load]
   }

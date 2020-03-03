@@ -1,15 +1,15 @@
 import { State } from 'reapex'
+
 import {
-  Meta,
+  DataLoaderState,
   LoaderData,
   LoaderStatus,
-  DataLoaderState,
+  Meta,
 } from './dataloader.types'
 
 export const init = (meta: Meta) => (s: State<{ data: LoaderData }>) => {
-  const name = meta.name
-  const key = meta.dataKey(name, meta.params)
-  const updated = update(name, key, s.data, {
+  const key = meta.dataKey(meta.name, meta.params)
+  const updated = update(key, s.data, {
     data: null,
     loading: false,
     error: null,
@@ -18,17 +18,15 @@ export const init = (meta: Meta) => (s: State<{ data: LoaderData }>) => {
 }
 
 export const start = (meta: Meta) => (s: State<DataLoaderState>) => {
-  const name = meta.name
-  const key = meta.dataKey(name, meta.params)
-  const updated = update(name, key, s.data, { loading: true })
+  const key = meta.dataKey(meta.name, meta.params)
+  const updated = update(key, s.data, { loading: true })
   return s.set('data', updated)
 }
 
 export const loadSuccess = (meta: Meta, data: any, isFresh: boolean) => (
   s: State<DataLoaderState>
 ) => {
-  const name = meta.name
-  const key = meta.dataKey(name, meta.params)
+  const key = meta.dataKey(meta.name, meta.params)
 
   let status: Partial<LoaderStatus> = {
     data,
@@ -43,17 +41,16 @@ export const loadSuccess = (meta: Meta, data: any, isFresh: boolean) => (
     }
   }
 
-  const updated = update(name, key, s.data, status)
+  const updated = update(key, s.data, status)
   return s.set('data', updated)
 }
 
 export const loadFailure = (meta: Meta, error: Error) => (
   s: State<DataLoaderState>
 ) => {
-  const name = meta.name
-  const key = meta.dataKey(name, meta.params)
+  const key = meta.dataKey(meta.name, meta.params)
 
-  const updated = update(name, key, s.data, {
+  const updated = update(key, s.data, {
     error,
     loading: false,
     lastErrorTime: Date.now(),
@@ -62,13 +59,11 @@ export const loadFailure = (meta: Meta, error: Error) => (
 }
 
 function update(
-  name: string,
   key: string,
   state: LoaderData,
   data: Partial<LoaderStatus>
 ): LoaderData {
-  const id = `${name}/${key}`
-  let dataStorage = state[id]
+  let dataStorage = state[key]
   // initialize with default values if data NOT exist
   if (!dataStorage) {
     dataStorage = {
@@ -84,5 +79,5 @@ function update(
     ...data,
   }
 
-  return { ...state, [id]: dataStorage }
+  return { ...state, [key]: dataStorage }
 }
