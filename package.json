@@ -1,6 +1,6 @@
 {
   "name": "reapex-plugin-dataloader",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "reapex dataloader plugin",
   "main": "lib/index.js",
   "scripts": {
