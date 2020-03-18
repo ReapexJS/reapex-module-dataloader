@@ -8,7 +8,6 @@ import { init, loadFailure, loadSuccess, start } from './DataLoader.mutations'
 import {
   DataLoaderProps,
   DataLoaderState,
-  IntervalFunction,
   LoaderData,
   LoaderStatus,
   Meta,
@@ -34,6 +33,7 @@ const defaultProps: OptionalProps = {
 
 const plugin = (app: App, namespace: string = '@@dataloader') => {
   const dataloader = app.model(namespace, initialState)
+  const tasks: Record<string, Task> = {}
 
   const [mutations] = dataloader.mutations({
     init,
@@ -47,27 +47,30 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     {
       load: {
         *takeEvery(meta: Meta) {
-          if (meta.interval) {
-            yield call(runInInterval, fetchData, meta)
-          } else {
-            yield call(fetchData, meta)
+          // cancel the existing task to avoid racing condition
+          if (tasks[meta.name] && tasks[meta.name].isRunning()) {
+            tasks[meta.name].cancel()
           }
+          const task: Task = yield fork(runFetch, meta)
+          tasks[meta.name] = task
         },
       },
     }
   )
 
-  function* runInInterval(func: IntervalFunction, meta: Meta): SagaIterator {
-    const task: Task = yield fork(func, meta)
-    yield delay(meta.interval)
+  function* runFetch(meta: Meta): SagaIterator {
+    const task: Task = yield fork(fetchData, meta)
+    if (meta.interval) {
+      yield delay(meta.interval)
 
-    // cancel task if task is still running after interval
-    if (task.isRunning()) {
-      yield cancel(task)
-    }
+      // cancel task if task is still running after interval
+      if (task.isRunning()) {
+        yield cancel(task)
+      }
 
-    if (meta.shouldInterval && meta.shouldInterval(task.result())) {
-      yield call(runInInterval, func, meta)
+      if (meta.shouldInterval && meta.shouldInterval(task.result())) {
+        yield fork(runFetch, meta)
+      }
     }
   }
 

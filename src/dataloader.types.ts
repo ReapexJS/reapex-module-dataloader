@@ -36,8 +36,6 @@ export interface LoaderStatus<TData = any> {
 export type DataLoaderProps<TData, TParams> = MandatoryProps<TData, TParams> &
   Partial<OptionalProps<TData, TParams>>
 
-export type IntervalFunction = (meta: Meta) => any
-
 export interface LoaderData {
   [key: string]: LoaderStatus
 }

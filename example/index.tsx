@@ -30,7 +30,7 @@ const LoaderWithHook: React.FC = () => {
   const loaderStatus = useDataLoader({
     name: 'api2',
     apiCall: mockApi,
-    interval: 3000,
+    interval: 300000,
   })
 
   if (loaderStatus.loading) {
@@ -47,29 +47,19 @@ const LoaderWithManualCall: React.FC = () => {
     name: 'api1',
     apiCall: searchGithubRepo,
     params: 'react',
+    interval: 3000,
   })
 
-  if (loaderStatus.loading) {
-    return <div>loading...</div>
-  }
-  if (loaderStatus.error) {
-    return <div>Error!!!</div>
-  }
-  if (loaderStatus.data) {
-    return (
-      <div>
-        {loaderStatus.data?.items.slice(0, 10).map(item => {
-          return <p>{item.full_name}</p>
-        })}
-        <div>
-          <button onClick={() => load('react')}>reload</button>
-        </div>
-      </div>
-    )
-  }
   return (
     <div>
-      <button onClick={() => load('react')}>reload</button>
+      {loaderStatus.data?.items.slice(0, 10).map(item => {
+        return <p>{item.full_name}</p>
+      })}
+      {loaderStatus.error && <div>Error!!!</div>}
+      {loaderStatus.loading && <div>loading...</div>}
+      <div>
+        <button onClick={() => load('react')}>reload</button>
+      </div>
     </div>
   )
 }
