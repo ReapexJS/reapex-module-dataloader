@@ -4,14 +4,13 @@ export interface DataPersister {
   removeItem: (key: string, meta?: Meta) => any
 }
 
-export interface MandatoryProps<TParams = any> {
+export interface MandatoryProps<TData, TParams> {
   name: string
-  apiCall: (params?: TParams) => Promise<any>
+  apiCall: (params?: TParams) => Promise<TData>
 }
 
 export interface OptionalProps<TData = any, TParams = any> {
   ttl: number
-  autoLoad: boolean
   onSuccess: (data?: TData) => any
   onFailure: (error?: Error) => any
   interval: number
@@ -23,7 +22,7 @@ export interface OptionalProps<TData = any, TParams = any> {
 }
 
 export interface Meta<TData = any, TParams = any>
-  extends MandatoryProps<TParams>,
+  extends MandatoryProps<TData, TParams>,
     OptionalProps<TData, TParams> {}
 
 export interface LoaderStatus<TData = any> {
@@ -34,14 +33,7 @@ export interface LoaderStatus<TData = any> {
   lastErrorTime?: number
 }
 
-export interface Loader<TData = any, TParams = any>
-  extends LoaderStatus<TData> {
-  load: (params?: TParams) => any
-}
-
-export type DataLoaderProps<TData = any, TParams = any> = MandatoryProps<
-  TParams
-> &
+export type DataLoaderProps<TData, TParams> = MandatoryProps<TData, TParams> &
   Partial<OptionalProps<TData, TParams>>
 
 export type IntervalFunction = (meta: Meta) => any

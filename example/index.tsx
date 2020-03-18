@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 
-import app, { useDataLoader } from './app'
+import app, { useDataLoader, useLazyDataLoader } from './app'
 
 interface GithubItem {
   full_name: string
@@ -14,7 +14,7 @@ interface GithubSearchResult {
 }
 
 const mockApi = () => {
-  return new Promise(resolve => {
+  return new Promise<number>(resolve => {
     setTimeout(() => resolve(Math.random()), 1000)
   })
 }
@@ -27,7 +27,7 @@ const searchGithubRepo = async (query: string) => {
 }
 
 const LoaderWithHook: React.FC = () => {
-  const [loaderStatus] = useDataLoader<number>({
+  const loaderStatus = useDataLoader({
     name: 'api2',
     apiCall: mockApi,
     interval: 3000,
@@ -43,7 +43,7 @@ const LoaderWithHook: React.FC = () => {
 }
 
 const LoaderWithManualCall: React.FC = () => {
-  const [loaderStatus, load] = useDataLoader<GithubSearchResult, string>({
+  const [loaderStatus, load] = useLazyDataLoader<GithubSearchResult, string>({
     name: 'api1',
     apiCall: searchGithubRepo,
     params: 'react',

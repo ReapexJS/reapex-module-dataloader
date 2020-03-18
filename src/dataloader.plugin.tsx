@@ -22,7 +22,6 @@ const initialState: DataLoaderState = {
 
 const defaultProps: OptionalProps = {
   ttl: 0,
-  autoLoad: true,
   onSuccess: () => true,
   onFailure: () => true,
   interval: 0,
@@ -119,34 +118,56 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     }
   }
 
-  function useDataLoader<TData = any, TParams = any>(
-    ownProps: DataLoaderProps
+  function useDataLoader<TData, TParams = never>(
+    ownProps: DataLoaderProps<TData, TParams>
   ) {
     const meta: Meta = { ...defaultProps, ...ownProps }
     const dispatch = useDispatch()
     const data = useSelector(dataloader.selectors.data)
-    const load = useCallback(
-      (params?: TParams) => dispatch(effects.load({ ...meta, params })),
-      []
-    )
 
     const key = ownProps.dataKey
       ? ownProps.dataKey(ownProps.name, ownProps.params)
       : defaultDataKeyFunc(ownProps.name, ownProps.params)
-    const loaderStatus = data[key] || {
+    const loaderStatus: LoaderStatus<TData> = data[key] || {
       data: null,
       loading: false,
       error: null,
     }
 
     useEffect(() => {
-      if (ownProps.autoLoad) {
-        dispatch(mutations.init(meta))
-      } else {
-        dispatch(effects.load(meta))
-      }
-    }, [])
+      dispatch(effects.load(meta))
+    }, [key])
 
+    return loaderStatus
+  }
+
+  function useLazyDataLoader<TData, TParams = never>(
+    ownProps: DataLoaderProps<TData, TParams>
+  ) {
+    const meta: Meta = { ...defaultProps, ...ownProps }
+    const dispatch = useDispatch()
+    const data = useSelector(dataloader.selectors.data)
+
+    const key = ownProps.dataKey
+      ? ownProps.dataKey(ownProps.name, ownProps.params)
+      : defaultDataKeyFunc(ownProps.name, ownProps.params)
+    const loaderStatus: LoaderStatus<TData> = data[key] || {
+      data: null,
+      loading: false,
+      error: null,
+    }
+
+    const load = useCallback(
+      (params?: TParams) => {
+        // keep meta.params if manual function call didn't pass params
+        if (params) {
+          return dispatch(effects.load({ ...meta, params }))
+        } else {
+          return dispatch(effects.load(meta))
+        }
+      },
+      [key]
+    )
     return [loaderStatus, load] as [LoaderStatus<TData>, typeof load]
   }
 
@@ -155,6 +176,7 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
     load: effects.load,
     model: dataloader,
     useDataLoader,
+    useLazyDataLoader,
   }
 }
 

@@ -9,8 +9,12 @@ const logger = createLogger({
 
 const app = new App({ middlewares: [logger] })
 
-export const { mutations, load, model, useDataLoader } = app.plugin(
-  dataloaderPlugin
-)
+export const {
+  mutations,
+  load,
+  model,
+  useDataLoader,
+  useLazyDataLoader,
+} = app.plugin(dataloaderPlugin)
 
 export default app
