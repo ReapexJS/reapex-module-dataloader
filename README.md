@@ -8,13 +8,13 @@ import dataloaderPlugin from 'reapex-plugin-dataloader'
 
 const app = new App()
 // 1. register the plugin
-export const { useDataLoader } = app.use(dataloaderPlugin)
+export const { useDataLoader, useLazyDataLoader } = app.use(dataloaderPlugin)
 ```
 
 ## Use react hooks
 ```typescript
-const LoaderWithHook: React.FC = () => {
-  const [loaderStatus] = useDataLoader<number>({
+const LoaderWithHook = () => {
+  const loaderStatus = useDataLoader({
     name: 'api2',
     apiCall: mockApi,
   })
@@ -29,6 +29,18 @@ const LoaderWithHook: React.FC = () => {
 }
 ```
 
+## Lazy load
+```typescript
+const LoaderWithHook = () => {
+  const [loaderStatus, load] = useLazyDataLoader({
+    name: 'api2',
+    apiCall: mockApi,
+  })
+
+  return <button onClick={() => load()}>click to load</button>
+}
+```
+
 ## API
 `DataLoaderProps`: The parameter of `useDataloader` hook function
 
@@ -36,7 +48,6 @@ const LoaderWithHook: React.FC = () => {
 | --- | --- | --- | --- | --- |
 | name | The key of the data stored in redux state, has to be unique if `dataKey` is not provided | `string` | - | Yes |
 | apiCall | A function that returns promise | `(params?: TPramas) => Promise<any>` | - | Yes |
-| autoLoad | Start to load data when component mount if `true` | `boolean` | `true` | No |
 | interval | Fetch data in an interval if given a none 0(ms) number | `boolean` | `0` | No |
 | params | The parameters that passed to `apiCall` function | `TParams = any` | `undefined` | No |
 | dataKey | Function that compute a dynamic key based on params | `(name: string, params?: TParams) => string` | `() => 'default'` | No |
@@ -51,12 +62,6 @@ const LoaderWithHook: React.FC = () => {
 ```ts
 useDataLoader: <TData = any, TParams = any>(props: DataLoaderProps) => [LoaderStatus<TData>, LoadActionCreator]
 ```
-
-## `DataLoader` child function
-```ts
-(loader: LoaderStatus & {load: LoadActionCreator}) => JSX.Element | null
-```
-
 
 ### `props: DataLoaderProps`
 The `props: DataLoaderProps` are defined in the table above.
