@@ -7,16 +7,6 @@ import {
   Meta,
 } from './dataloader.types'
 
-export const init = (meta: Meta) => (s: State<{ data: LoaderData }>) => {
-  const key = meta.dataKey(meta.name, meta.params)
-  const updated = update(key, s.data, {
-    data: null,
-    loading: false,
-    error: null,
-  })
-  return s.set('data', updated)
-}
-
 export const start = (meta: Meta) => (s: State<DataLoaderState>) => {
   const key = meta.dataKey(meta.name, meta.params)
   const updated = update(key, s.data, { loading: true })

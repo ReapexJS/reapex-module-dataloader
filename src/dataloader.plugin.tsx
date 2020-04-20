@@ -4,7 +4,7 @@ import { App } from 'reapex'
 import { SagaIterator, Task } from 'redux-saga'
 import { call, cancel, delay, fork, put, select } from 'redux-saga/effects'
 
-import { init, loadFailure, loadSuccess, start } from './DataLoader.mutations'
+import { loadFailure, loadSuccess, start } from './DataLoader.mutations'
 import {
   DataLoaderProps,
   DataLoaderState,
@@ -36,7 +36,6 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
   const tasks: Record<string, Task> = {}
 
   const [mutations] = dataloader.mutations({
-    init,
     start,
     loadSuccess,
     loadFailure,
@@ -77,15 +76,16 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
   function* fetchData(meta: Meta) {
     const key = meta.dataKey(meta.name, meta.params)
 
-    let data: LoaderData = yield select(dataloader.selectors.data)
+    const inMemoryCache: LoaderData = yield select(dataloader.selectors.data)
 
-    const status = data[key]
-    if (data && isDataValid(status, meta)) {
-      return data
+    let status = inMemoryCache[key]
+    if (status && isDataValid(status, meta)) {
+      return status.data
     }
 
     yield put(mutations.start(meta))
 
+    let data: any
     try {
       if (meta.dataPersister) {
         data = yield call(meta.dataPersister.getItem, key, meta)
