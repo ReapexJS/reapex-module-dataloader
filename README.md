@@ -1,14 +1,14 @@
-### Reapex dataloader plugin
+### Reapex dataloader module
 
-## register the plugin
+## register the module
 
 ```typescript
 import { App } from 'reapex'
-import dataloaderPlugin from 'reapex-plugin-dataloader'
+import dataloader from 'reapex-module-dataloader'
 
 const app = new App()
-// 1. register the plugin
-export const { useDataLoader, useLazyDataLoader } = app.use(dataloaderPlugin)
+// 1. register the module
+export const { useDataLoader, useLazyDataLoader } = app.use(dataloader)
 ```
 
 ## Use react hooks

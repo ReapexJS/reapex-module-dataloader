@@ -31,7 +31,7 @@ const defaultProps: OptionalProps = {
   dataKey: defaultDataKeyFunc,
 }
 
-const plugin = (app: App, namespace: string = '@@dataloader') => {
+const module = (app: App, namespace: string = '@@dataloader') => {
   const dataloader = app.model(namespace, initialState)
   const tasks: Record<string, Task> = {}
 
@@ -183,4 +183,4 @@ const plugin = (app: App, namespace: string = '@@dataloader') => {
   }
 }
 
-export default plugin
+export default module

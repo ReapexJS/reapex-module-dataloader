@@ -1,7 +1,7 @@
 {
-  "name": "reapex-plugin-dataloader",
+  "name": "reapex-module-dataloader",
   "version": "1.2.1",
-  "description": "reapex dataloader plugin",
+  "description": "reapex dataloader module",
   "main": "lib/index.js",
   "scripts": {
     "test": "jest",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ReapexJS/reapex-plugin-dataloader.git"
+    "url": "git+https://github.com/ReapexJS/reapex-module-dataloader.git"
   },
   "keywords": [
     "reapex",
@@ -74,7 +74,7 @@
   "author": "Yulong Ruan <ruanyu1@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ReapexJS/reapex-plugin-dataloader/issues"
+    "url": "https://github.com/ReapexJS/reapex-module-dataloader/issues"
   },
-  "homepage": "https://github.com/ReapexJS/reapex-plugin-dataloader#readme"
+  "homepage": "https://github.com/ReapexJS/reapex-module-dataloader#readme"
 }

@@ -1,4 +1,4 @@
-import dataLoaderPlugin from './dataloader.plugin'
+import dataLoader from './dataloader.module'
 
 export * from './localStorageDataPersister'
-export default dataLoaderPlugin
+export default dataLoader
