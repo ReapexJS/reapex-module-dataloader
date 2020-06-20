@@ -1,6 +1,6 @@
 {
   "name": "reapex-module-dataloader",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "reapex dataloader module",
   "main": "lib/index.js",
   "scripts": {
